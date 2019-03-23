@@ -347,8 +347,8 @@ def nm_editor_web_view_stdHTML_around(*args, **kwargs):
 
     if nm_state_on and nm_enable_in_dialogs:
         custom_css += nm_css_buttons + '.topbut{filter:invert(1); -webkit-filter:invert(1)}'
-        custom_css += 'a{color:00BBFF}.fname,.field{color: ' + nm_color_td + '!important}'
-        custom_css += 'html,body{background:' + nm_color_bl + '!important}'
+        custom_css += 'a{color:' + nm_color_tl + '}  .fname, .field{' + nm_css_custom_colors + '}'
+        custom_css += 'html,body{background:#fff!important}'
 
     if nm_invert_image:
         custom_css += ".field " + nm_css_iimage
@@ -380,7 +380,7 @@ def nm_editor_web_view_set_html_after(self, *args, **kwargs):
     css = ''
 
     if nm_state_on and nm_enable_in_dialogs:
-        css += 'a{color:00BBFF}.fname,.field{color:' + nm_color_td + '}'
+        css += 'a{color:' + nm_color_tl + '}  .fname, .field{' + nm_css_custom_colors + '}'
 
     if nm_invert_image:
         css += '.field ' + nm_css_iimage
@@ -773,7 +773,7 @@ def nm_card_color_css():
     using global color declarations
     """
     return (".card {    color:" + nm_color_td + "!important;" +
-            "background-color:" + nm_color_bl + "!important}")
+            "background-color:#fff!important}")
 
 
 def nm_body_color_css():
@@ -782,7 +782,7 @@ def nm_body_color_css():
     using global color declarations
     """
     return (" body {    color:" + nm_color_td + "!important;" +
-            "background-color:" + nm_color_bl + "!important}")
+            "background-color:#fff!important}")
 
 
 def nm_message_box_css():
@@ -822,13 +822,10 @@ def nm_dialog_css():
     using global color declarations
     """
     return """
-            QWidget
+            QDialog, QDialog *
             {
-                """ + nm_css_custom_colors + """
-            }
-            QDialog,QLabel,QListWidget,QFontComboBox,QCheckBox,QSpinBox,QRadioButton,QHBoxLayout
-            {
-
+                background: #fff;
+                color: #000;
             }
             QFontComboBox::drop-down{border: 0px; border-left: 1px solid #555; width: 30px;}
             QFontComboBox::down-arrow{width:12px; height:8px;
@@ -924,11 +921,11 @@ def nm_css_browser():
     return """
     QSplitter::handle
     {
-        background:""" + nm_color_bl + """;
+        background:""" + theme.color1 + """;
     }
     #""" + nm_from_utf8("widget") + """, QTreeView
     {
-        """ + nm_css_custom_colors + """
+        background: #eee
     }
     QTreeView::item:selected:active, QTreeView::branch:selected:active
     {
@@ -951,7 +948,7 @@ nm_css_custom_colors = nm_make_css_custom_colors_string()
 nm_css_button_idle = """
     background:""" + nm_color_bl + """;
     color:""" + nm_color_td + """;
-    margin-top:0;
+    margin-top:5px;
     position:relative;
     top:0;
     padding:3px 8px;
@@ -992,14 +989,14 @@ button:active
 
 # TODO
 nm_css_completer = """
-    """ + nm_css_custom_colors + """;
     border-color:#444;
 """
 
 nm_css_qt_mid_buttons = """
 QLineEdit
 {
-""" + nm_css_completer + """
+    background: #fff;
+    color: black;
 }
 """
 
@@ -1025,7 +1022,8 @@ font[color="#00a"]
 nm_css_bottom = nm_css_buttons + nm_css_color_replacer + """
 body, #outer
 {
-    background:""" + nm_color_bl + """;
+    background: """ + nm_color_bl + """;
+    color: """ + nm_color_tl + """;
     border-top-color:#222
 }
 .stattxt
@@ -1122,7 +1120,7 @@ a
 }
 .current
 {
-    background-color:""" + nm_color_al + """;
+    background-color:#eee;
     color:""" + nm_color_tl + """;
 }
 a.deck, .collapse
@@ -1154,8 +1152,8 @@ tr.deck font[color="#000099"]
 nm_css_other_bottoms = nm_css_buttons + """
 #header
 {
-    color:""" + nm_color_tl + """!important;
-    background:""" + nm_color_bl + """;
+    background: """ + nm_color_bl + """;
+    color:""" + nm_color_td + """!important;
     border-top-color:#000;
     height:40px
 }
