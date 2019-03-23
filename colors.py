@@ -1,0 +1,22 @@
+class wal:
+    def __init__(self):
+        self.wallpaper = "{wallpaper}"
+        self.background = "{background}"
+        self.foreground = "{foreground}"
+
+        self.color0 = "{color0}"
+        self.color1 = "{color1}"
+        self.color2 = "{color2}"
+        self.color3 = "{color3}"
+        self.color4 = "{color4}"
+        self.color5 = "{color5}"
+        self.color6 = "{color6}"
+        self.color7 = "{color7}"
+        self.color8 = "{color8}"
+        self.color9 = "{color9}"
+        self.color10 = "{color10}"
+        self.color11 = "{color11}"
+        self.color12 = "{color12}"
+        self.color13 = "{color13}"
+        self.color14 = "{color14}"
+        self.color15 = "{color15}"

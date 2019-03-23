@@ -44,7 +44,7 @@ from aqt import appVersion
 
 
 from anki.lang import _
-from anki.hooks import addHook, runHook
+from anki.hooks import addHook
 from anki.hooks import wrap
 from anki.utils import json
 
@@ -64,13 +64,21 @@ else:
 
 from os.path import isfile
 
+from colors import wal
+theme = wal()
+
 try:
     nm_from_utf8 = QtCore.QString.fromUtf8
 except AttributeError:
     nm_from_utf8 = lambda s: s
 
 # Add here you color replacements mapping - old: new, comma separated
-nm_custom_color_map = {'#000000': 'white'}
+nm_custom_color_map = {
+        '#007700': '#30DC16',
+        '#000099': '#00BBFF',
+        '#C35617': '#D46728',
+        '#00a': '#00BBFF'
+        }
 
 # This declarations are there only to be sure that in case of troubles
 # with "profileLoaded" hook everything will work.
@@ -88,10 +96,13 @@ nm_menu_ilatex = None
 nm_menu_endial = None
 nm_menu_tlatex = None
 
-nm_color_b = "#272828"  # background color (customizable from menu)
-nm_color_s = "#373838"  # alternative (second) background color (hardcoded)
-nm_color_t = "#ffffff"  # text color (customizable from menu)
-nm_color_a = "#443477"  # active element color (hardcoded)
+nm_color_bl = theme.color1 # background color (customizable from menu)
+nm_color_bd = theme.color0
+nm_color_s = theme.color0  # alternative (second) background color (hardcoded)
+nm_color_tl = "#ffffff"
+nm_color_td = theme.foreground  # text color (customizable from menu)
+nm_color_al = theme.color4 # active element color (hardcoded)
+nm_color_ad = theme.color3
 
 # Save original values for further use.
 nm_default_css_menu = mw.styleSheet()
@@ -188,11 +199,11 @@ def nm_change_color_t():
     """
     Open color picker and set chosen color to text (in content)
     """
-    global nm_color_t
-    nm_qcolor_old = QColor(nm_color_t)
+    global nm_color_td
+    nm_qcolor_old = QColor(nm_color_td)
     nm_qcolor = QColorDialog.getColor(nm_qcolor_old)
     if nm_qcolor.isValid():
-        nm_color_t = nm_qcolor.name()
+        nm_color_td = nm_qcolor.name()
         nm_refresh()
 
 
@@ -200,11 +211,11 @@ def nm_change_color_b():
     """
     Open color picker and set chosen color to background (of content)
     """
-    global nm_color_b
-    nm_qcolor_old = QColor(nm_color_b)
+    global nm_color_bl
+    nm_qcolor_old = QColor(nm_color_bl)
     nm_qcolor = QColorDialog.getColor(nm_qcolor_old)
     if nm_qcolor.isValid():
-        nm_color_b = nm_qcolor.name()
+        nm_color_bl = nm_qcolor.name()
         nm_refresh()
 
 
@@ -212,9 +223,9 @@ def nm_color_reset():
     """
     Reset colors.
     """
-    global nm_color_b, nm_color_t
-    nm_color_b = "#272828"
-    nm_color_t = "#ffffff"
+    global nm_color_bl, nm_color_td
+    nm_color_bl = "#ffffff"
+    nm_color_td = "#000000"
     nm_refresh()
 
 
@@ -242,8 +253,8 @@ def nm_save():
     mw.pm.profile['nm_invert_image'] = nm_invert_image
     mw.pm.profile['nm_invert_latex'] = nm_invert_latex
     mw.pm.profile['nm_transparent_latex'] = nm_transparent_latex
-    mw.pm.profile['nm_color_b'] = nm_color_b
-    mw.pm.profile['nm_color_t'] = nm_color_t
+    mw.pm.profile['nm_color_bl'] = nm_color_bl
+    mw.pm.profile['nm_color_td'] = nm_color_td
 
 
 def nm_load():
@@ -252,14 +263,14 @@ def nm_load():
     and turn on night mode if it were enabled on previous session.
     """
     global nm_menu_iimage, nm_menu_ilatex, nm_state_on, \
-        nm_invert_image, nm_invert_latex, nm_color_b, nm_color_t, \
+        nm_invert_image, nm_invert_latex, nm_color_bl, nm_color_td, \
         nm_enable_in_dialogs, nm_profile_loaded, nm_transparent_latex
 
     nm_state_on = mw.pm.profile.get('nm_state_on', True)
     nm_invert_image = mw.pm.profile.get('nm_invert_image', False)
     nm_invert_latex = mw.pm.profile.get('nm_invert_latex', False)
-    nm_color_b = mw.pm.profile.get('nm_color_b', '#272828')
-    nm_color_t = mw.pm.profile.get('nm_color_t', '#ffffff')
+    nm_color_bl = mw.pm.profile.get('nm_color_bl', '#ffffff')
+    nm_color_td = mw.pm.profile.get('nm_color_td', '#000000')
     nm_enable_in_dialogs = mw.pm.profile.get('nm_enable_in_dialogs', True)
     nm_transparent_latex = mw.pm.profile.get('nm_transparent_latex', False)
 
@@ -290,7 +301,7 @@ def nm_style_fields(editor):
 
         cols = []
         for f in editor.note.fields:
-            cols.append(nm_color_b)
+            cols.append(nm_color_bl)
         err = editor.note.dupeOrEmpty()
         if err == 2:
             cols[0] = "#A96D06"
@@ -326,7 +337,7 @@ def nm_editor_init_after(self, mw, widget, parentWindow, addMode=False):
 
 def nm_editor_loadFinished(self):
     if nm_state_on and nm_enable_in_dialogs:
-        self.web.eval("setBG('%s')" % nm_color_b)
+        self.web.eval("setBG('%s')" % nm_color_bl)
 
 
 def nm_editor_web_view_stdHTML_around(*args, **kwargs):
@@ -336,8 +347,8 @@ def nm_editor_web_view_stdHTML_around(*args, **kwargs):
 
     if nm_state_on and nm_enable_in_dialogs:
         custom_css += nm_css_buttons + '.topbut{filter:invert(1); -webkit-filter:invert(1)}'
-        custom_css += 'a{color:00BBFF}.fname,.field{color: ' + nm_color_t + '!important}'
-        custom_css += 'html,body{background:' + nm_color_b + '!important}'
+        custom_css += 'a{color:00BBFF}.fname,.field{color: ' + nm_color_td + '!important}'
+        custom_css += 'html,body{background:' + nm_color_bl + '!important}'
 
     if nm_invert_image:
         custom_css += ".field " + nm_css_iimage
@@ -369,7 +380,7 @@ def nm_editor_web_view_set_html_after(self, *args, **kwargs):
     css = ''
 
     if nm_state_on and nm_enable_in_dialogs:
-        css += 'a{color:00BBFF}.fname,.field{color:' + nm_color_t + '}'
+        css += 'a{color:00BBFF}.fname,.field{color:' + nm_color_td + '}'
 
     if nm_invert_image:
         css += '.field ' + nm_css_iimage
@@ -584,8 +595,8 @@ def nm_on():
         nm_state_on = True
 
         import aqt.browser
-        aqt.browser.COLOUR_MARKED = "#735083"
-        aqt.browser.COLOUR_SUSPENDED = "#777750"
+        aqt.browser.COLOUR_MARKED = "#D9B2E9"
+        aqt.browser.COLOUR_SUSPENDED = "#FFFFB2"
 
         nm_append_to_styles(
             nm_css_bottom,
@@ -644,7 +655,6 @@ def nm_switch():
             nm_off()
         else:
             nm_on()
-        runHook("night_mode_state_changed", nm_state_on)
 
 
 def nm_endial():
@@ -695,10 +705,10 @@ def nm_setup_menu():
     mw.addon_view_menu.addMenu(mw.nm_menu)
 
     nm_menu_switch = QAction(_('&Enable night mode'), mw, checkable=True)
-    nm_menu_iimage = QAction(_('&Invert images'), mw, checkable=True)
-    nm_menu_ilatex = QAction(_('Invert &latex'), mw, checkable=True)
+    #nm_menu_iimage = QAction(_('&Invert images'), mw, checkable=True)
+    #nm_menu_ilatex = QAction(_('Invert &latex'), mw, checkable=True)
     nm_menu_endial = QAction(_('Enable in &dialogs'), mw, checkable=True)
-    nm_menu_tlatex = QAction(_('Force transparent latex'), mw, checkable=True)
+    #nm_menu_tlatex = QAction(_('Force transparent latex'), mw, checkable=True)
     nm_menu_color_b = QAction(_('Set &background color'), mw)
     nm_menu_color_t = QAction(_('Set &text color'), mw)
     nm_menu_color_r = QAction(_('&Reset colors'), mw)
@@ -710,9 +720,9 @@ def nm_setup_menu():
     mw.nm_menu.addAction(nm_menu_switch)
     mw.nm_menu.addAction(nm_menu_endial)
     mw.nm_menu.addSeparator()
-    mw.nm_menu.addAction(nm_menu_iimage)
-    mw.nm_menu.addAction(nm_menu_ilatex)
-    mw.nm_menu.addAction(nm_menu_tlatex)
+    #mw.nm_menu.addAction(nm_menu_iimage)
+    #mw.nm_menu.addAction(nm_menu_ilatex)
+    #mw.nm_menu.addAction(nm_menu_tlatex)
     mw.nm_menu.addSeparator()
     mw.nm_menu.addAction(nm_menu_color_b)
     mw.nm_menu.addAction(nm_menu_color_t)
@@ -723,9 +733,9 @@ def nm_setup_menu():
     connections = {
         nm_menu_endial: nm_endial,
         nm_menu_switch: nm_switch,
-        nm_menu_iimage: nm_iimage,
-        nm_menu_ilatex: nm_ilatex,
-        nm_menu_tlatex: nm_tlatex,
+        #nm_menu_iimage: nm_iimage,
+        #nm_menu_ilatex: nm_ilatex,
+        #nm_menu_tlatex: nm_tlatex,
         nm_menu_color_b: nm_change_color_b,
         nm_menu_color_t: nm_change_color_t,
         nm_menu_color_r: nm_color_reset,
@@ -748,7 +758,8 @@ def nm_setup_menu():
 
 
 def nm_make_css_custom_colors_string():
-    return 'color:' + nm_color_t + ';background-color:' + nm_color_b + ';'
+    return 'color:' + nm_color_td + '; ' \
+    + 'background:' + nm_color_bl + ';'
 
 
 def nm_refresh_css_custom_colors_string():
@@ -761,8 +772,8 @@ def nm_card_color_css():
     Generate and return CSS style of class "card",
     using global color declarations
     """
-    return (".card {    color:" + nm_color_t + "!important;" +
-            "background-color:" + nm_color_b + "!important}")
+    return (".card {    color:" + nm_color_td + "!important;" +
+            "background-color:" + nm_color_bl + "!important}")
 
 
 def nm_body_color_css():
@@ -770,8 +781,8 @@ def nm_body_color_css():
     Generate and return CSS style of class "card",
     using global color declarations
     """
-    return (" body {    color:" + nm_color_t + "!important;" +
-            "background-color:" + nm_color_b + "!important}")
+    return (" body {    color:" + nm_color_td + "!important;" +
+            "background-color:" + nm_color_bl + "!important}")
 
 
 def nm_message_box_css():
@@ -779,8 +790,7 @@ def nm_message_box_css():
     Generate and return CSS style of class QMessageBox,
     using global color declarations
     """
-    return ("QMessageBox,QLabel {color:" + nm_color_t + ";" +
-            "background-color:" + nm_color_b + "}" + nm_css_qt_buttons() +
+    return ("QMessageBox,QLabel {" + nm_css_custom_colors + "}" + nm_css_qt_buttons() +
             "QPushButton {min-width:70px}")
 
 
@@ -788,19 +798,16 @@ def nm_css_qt_buttons(restrict_to_parent="", restrict_to=""):
     return """
     """ + restrict_to_parent + """ QPushButton""" + restrict_to + """
     {
-        background: qlineargradient(x1: 0.0, y1: 0.0, x2: 0.0, y2: 1.0, radius: 1, stop: 0.03 #3D4850, stop: 0.04 #313d45, stop: 1 #232B30);
         border-radius: 3px;
         """ + nm_css_button_idle + """
     }
     """ + restrict_to_parent + """ QPushButton""" + restrict_to + """:hover
     {
         """ + nm_css_button_hover + """
-        background: qlineargradient(x1: 0.0, y1: 0.0, x2: 0.0, y2: 1.0, radius: 1, stop: 0.03 #4C5A64, stop: 0.04 #404F5A, stop: 1 #2E3940);
     }
     """ + restrict_to_parent + """ QPushButton""" + restrict_to + """:pressed
     {
         """ + nm_css_button_active + """
-        background: qlineargradient(x1: 0.0, y1: 0.0, x2: 0.0, y2: 1.0, radius: 1, stop: 0.03 #20282D, stop: 0.51 #252E34, stop: 1 #222A30);
     }
     """ + restrict_to_parent + """ QPushButton""" + restrict_to + """:focus
     {
@@ -815,9 +822,13 @@ def nm_dialog_css():
     using global color declarations
     """
     return """
+            QWidget
+            {
+                """ + nm_css_custom_colors + """
+            }
             QDialog,QLabel,QListWidget,QFontComboBox,QCheckBox,QSpinBox,QRadioButton,QHBoxLayout
             {
-            """ + nm_css_custom_colors + """
+
             }
             QFontComboBox::drop-down{border: 0px; border-left: 1px solid #555; width: 30px;}
             QFontComboBox::down-arrow{width:12px; height:8px;
@@ -828,8 +839,6 @@ def nm_dialog_css():
 
             QTabWidget QWidget
             {
-                color:""" + nm_color_t + """;
-                background-color:#222;
                 border-color:#555
             }
             QTabWidget QLabel {
@@ -856,10 +865,9 @@ def nm_browser_table_css():
     return """
         QTableView
         {
-            alternate-background-color:""" + nm_color_s + """;
-            gridline-color:""" + nm_color_s + """;
+            gridline-color:""" + nm_color_td + """;
             """ + nm_css_custom_colors + """
-            selection-background-color: """ + nm_color_a + """
+            selection-background-color: """ + nm_color_al + """
         }
         """
 
@@ -886,14 +894,13 @@ def nm_browser_search_box_css():
 
     QComboBox:!editable
     {
-        background:""" + nm_color_a + """
+        background:""" + nm_color_al + """
     }
 
     QComboBox QAbstractItemView
     {
         border:1px solid #111;
         """ + nm_css_custom_colors + """
-        background:#444
     }
 
     QComboBox::drop-down, QComboBox::drop-down:editable
@@ -903,7 +910,6 @@ def nm_browser_search_box_css():
         border-left:1px solid #444;
         border-top-right-radius:3px;
         border-bottom-right-radius:3px;
-        background:qlineargradient(x1: 0.0, y1: 0.0, x2: 0.0, y2: 1.0, radius: 1, stop: 0.03 #3D4850, stop: 0.04 #313d45, stop: 1 #232B30);
     }
 
     QComboBox::down-arrow
@@ -918,7 +924,7 @@ def nm_css_browser():
     return """
     QSplitter::handle
     {
-        background:#000
+        background:""" + nm_color_bl + """;
     }
     #""" + nm_from_utf8("widget") + """, QTreeView
     {
@@ -926,11 +932,11 @@ def nm_css_browser():
     }
     QTreeView::item:selected:active, QTreeView::branch:selected:active
     {
-        background:""" + nm_color_a + """
+        background:""" + nm_color_al + """
     }
     QTreeView::item:selected:!active, QTreeView::branch:selected:!active
     {
-        background:""" + nm_color_a + """
+        background:""" + nm_color_ad + """
     }
     """
 
@@ -943,7 +949,8 @@ nm_css_custom_colors = nm_make_css_custom_colors_string()
 
 # Thanks to http://devgrow.com/dark-button-navigation-using-css3/
 nm_css_button_idle = """
-    color:#AFB9C1;
+    background:""" + nm_color_bl + """;
+    color:""" + nm_color_td + """;
     margin-top:0;
     position:relative;
     top:0;
@@ -954,11 +961,13 @@ nm_css_button_idle = """
 """
 
 nm_css_button_hover = """
-    color:#fff;
+    background: """ + nm_color_ad + """;
+    color:""" + nm_color_tl + """;
 """
 
 nm_css_button_active = """
-    color:#fff;
+    background: """ + nm_color_al + """;
+    color:""" + nm_color_tl + """;
 """
 
 nm_css_buttons = """
@@ -967,28 +976,24 @@ button
     """ + nm_css_button_idle + """
     text-shadow:1px 1px #1f272b;
     display:inline-block;
-    background:-webkit-gradient(linear, left top, left bottom, color-stop(3%,#3D4850), color-stop(4%,#313d45), color-stop(100%,#232B30));
     -webkit-box-shadow:1px 1px 1px rgba(0,0,0,0.1);
     -webkit-border-radius:3px
 }
 button:hover
 {
     """ + nm_css_button_hover + """
-    background:-webkit-gradient(linear, left top, left bottom, color-stop(3%,#4C5A64), color-stop(4%,#404F5A), color-stop(100%,#2E3940));
 }
 button:active
 {
     """ + nm_css_button_active + """
-    background:-webkit-gradient(linear, left top, left bottom, color-stop(3%,#20282D), color-stop(51%,#252E34), color-stop(100%,#222A30));
     -webkit-box-shadow:1px 1px 1px rgba(255,255,255,0.1);
 }
 """
 
 # TODO
 nm_css_completer = """
-    background-color:black;
+    """ + nm_css_custom_colors + """;
     border-color:#444;
-    color:#eee;
 """
 
 nm_css_qt_mid_buttons = """
@@ -1001,7 +1006,7 @@ QLineEdit
 nm_css_color_replacer = """
 font[color="#007700"],span[style="color:#070"]
 {
-    color:#00CC00!important
+    color:#30dc16!important
 }
 font[color="#000099"],span[style="color:#00F"]
 {
@@ -1020,33 +1025,33 @@ font[color="#00a"]
 nm_css_bottom = nm_css_buttons + nm_css_color_replacer + """
 body, #outer
 {
-    background:-webkit-gradient(linear, left top, left bottom, from(#333), to(#222));
+    background:""" + nm_color_bl + """;
     border-top-color:#222
 }
 .stattxt
 {
-    color:#ccc
+    color:""" + nm_color_td + """;
 }
 /* Make the color above "Again" "Hard" "Easy" and so on buttons readable */
 .nobold
 {
-    color:#ddd
+    color:""" + nm_color_bd + """;
 }
 """
 
 nm_css_top = """
 html, #header
 {
-    background:-webkit-gradient(linear, left top, left bottom, from(#333), to(#444));
-    color:#eee
+    """ + nm_css_custom_colors + """;
 }
 body, #header
 {
+    """ + nm_css_custom_colors + """;
     border-bottom-color:#222
 }
 .hitem
 {
-    color:#ddd
+    color:""" + nm_color_tl + """;
 }
 """
 
@@ -1077,7 +1082,7 @@ nm_css_body = """
 .typeGood
 {
     color:black;
-    background:#57a957
+    background:#30dc16
 }
 .typeBad
 {
@@ -1113,20 +1118,20 @@ a
 nm_css_decks = nm_css_buttons + nm_css_color_replacer + """
 a
 {
-    color:#0099CC
+    color:""" + nm_color_tl + """;
 }
 .current
 {
-    background-color:rgba(0,0,0,0.5)
+    background-color:""" + nm_color_al + """;
+    color:""" + nm_color_tl + """;
 }
 a.deck, .collapse
 {
-    color:#efe
+    color:""" + nm_color_td + """;
 }
 tr.deck td
 {
     height:35px;
-    border-bottom-color:#333
 }
 tr.deck button img
 {
@@ -1134,7 +1139,7 @@ tr.deck button img
 }
 tr.deck font[color="#007700"]
 {
-    color:#00CC00
+    color:#30dc16
 }
 tr.deck font[color="#000099"]
 {
@@ -1149,8 +1154,8 @@ tr.deck font[color="#000099"]
 nm_css_other_bottoms = nm_css_buttons + """
 #header
 {
-    color:#ccc!important;
-    background:-webkit-gradient(linear, left top, left bottom, from(#333), to(#222));
+    color:""" + nm_color_tl + """!important;
+    background:""" + nm_color_bl + """;
     border-top-color:#000;
     height:40px
 }
@@ -1161,15 +1166,15 @@ def nm_css_overview():
     return nm_css_buttons + nm_css_color_replacer + """
     .descfont
     {
-        color:""" + nm_color_t + """;
+        """ + nm_css_custom_colors + """
     }
     """
 
 nm_css_menu = """
 QMenuBar,QMenu
 {
-    background-color:#444!important;
-    color:#eee!important
+    background-color:""" + nm_color_bl + """!important;
+    color:""" + nm_color_td + """!important;
 }
 QMenuBar::item
 {
@@ -1177,9 +1182,8 @@ QMenuBar::item
 }
 QMenuBar::item:selected
 {
-    background-color:""" + nm_color_a + """!important;
-    border-top-left-radius:6px;
-    border-top-right-radius:6px
+    background-color:""" + nm_color_al + """!important;
+    color:""" + nm_color_tl + """!important;
 }
 QMenu
 {
@@ -1187,7 +1191,8 @@ QMenu
 }
 QMenu::item::selected
 {
-    background-color:""" + nm_color_a + """;
+    background-color:""" + nm_color_al + """;
+    color:""" + nm_color_tl + """;
 }
 QMenu::item
 {
