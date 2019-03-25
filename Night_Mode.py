@@ -224,8 +224,8 @@ def nm_color_reset():
     Reset colors.
     """
     global nm_color_bl, nm_color_td
-    nm_color_bl = "#ffffff"
-    nm_color_td = "#000000"
+    nm_color_bl = theme.color1
+    nm_color_td = theme.color7
     nm_refresh()
 
 
@@ -269,8 +269,8 @@ def nm_load():
     nm_state_on = mw.pm.profile.get('nm_state_on', True)
     nm_invert_image = mw.pm.profile.get('nm_invert_image', False)
     nm_invert_latex = mw.pm.profile.get('nm_invert_latex', False)
-    nm_color_bl = mw.pm.profile.get('nm_color_bl', '#ffffff')
-    nm_color_td = mw.pm.profile.get('nm_color_td', '#000000')
+    nm_color_bl = mw.pm.profile.get('nm_color_bl', theme.color1)
+    nm_color_td = mw.pm.profile.get('nm_color_td', theme.color7)
     nm_enable_in_dialogs = mw.pm.profile.get('nm_enable_in_dialogs', True)
     nm_transparent_latex = mw.pm.profile.get('nm_transparent_latex', False)
 
@@ -301,7 +301,7 @@ def nm_style_fields(editor):
 
         cols = []
         for f in editor.note.fields:
-            cols.append(nm_color_bl)
+            cols.append(nm_color_tl)
         err = editor.note.dupeOrEmpty()
         if err == 2:
             cols[0] = "#A96D06"
@@ -322,7 +322,7 @@ def nm_editor_init_after(self, mw, widget, parentWindow, addMode=False):
 
         editor_css = nm_dialog_css()
 
-        editor_css += '#' + widget.objectName() + '{' + nm_css_custom_colors + '}'
+        editor_css += '#' + widget.objectName() + '{ background:' + theme.color1 + '; color:' + theme.color7 + '; }'
 
         self.parentWindow.setStyleSheet(editor_css)
 
@@ -347,8 +347,8 @@ def nm_editor_web_view_stdHTML_around(*args, **kwargs):
 
     if nm_state_on and nm_enable_in_dialogs:
         custom_css += nm_css_buttons + '.topbut{filter:invert(1); -webkit-filter:invert(1)}'
-        custom_css += 'a{color:' + nm_color_tl + '}  .fname, .field{' + nm_css_custom_colors + '}'
-        custom_css += 'html,body{background:#fff!important}'
+        custom_css += 'a{color:' + nm_color_tl + '}  .fname, .field{  }'
+        #custom_css += 'html,body{background:#fff!important}'
 
     if nm_invert_image:
         custom_css += ".field " + nm_css_iimage
@@ -380,7 +380,7 @@ def nm_editor_web_view_set_html_after(self, *args, **kwargs):
     css = ''
 
     if nm_state_on and nm_enable_in_dialogs:
-        css += 'a{color:' + nm_color_tl + '}  .fname, .field{' + nm_css_custom_colors + '}'
+        css += 'a{color:' + nm_color_tl + '}  .fname{ background:' + theme.color1 + '; color:' + theme.color7 + ' }'
 
     if nm_invert_image:
         css += '.field ' + nm_css_iimage
@@ -444,7 +444,7 @@ def nm_add_init_after(self, mw):
 
         self.form.buttonBox.setStyleSheet(nm_css_qt_buttons())
         nm_set_style_to_objects_inside(self.form.horizontalLayout, nm_css_qt_buttons())
-        self.form.line.setStyleSheet("#" + nm_from_utf8("line") + "{border:0px solid #333}")
+        self.form.line.setStyleSheet("#" + nm_from_utf8("line") + "{border:0px solid transparent}")
         self.form.fieldsArea.setAutoFillBackground(False)
 
 
@@ -599,14 +599,14 @@ def nm_on():
         aqt.browser.COLOUR_SUSPENDED = "#FFFFB2"
 
         nm_append_to_styles(
-            nm_css_bottom,
-            nm_css_body + nm_card_color_css() + nm_css_custom_color_map(),
-            nm_css_top,
-            nm_css_decks + nm_body_color_css(),
-            nm_css_other_bottoms,
-            nm_css_overview() + nm_body_color_css(),
-            nm_css_menu,
-            nm_css_buttons + nm_body_color_css()
+            bottom=nm_css_bottom,
+            body=nm_css_body + nm_card_color_css() + nm_css_custom_color_map(),
+            top=nm_css_top,
+            decks=nm_css_decks + nm_body_color_css(),
+            other_bottoms=nm_css_other_bottoms,
+            overview=nm_css_overview() + nm_body_color_css(),
+            menu=nm_css_menu,
+            waiting_screen=nm_css_buttons + nm_body_color_css()
         )
         nm_menu_switch.setChecked(True)
         return True
@@ -758,7 +758,7 @@ def nm_setup_menu():
 
 
 def nm_make_css_custom_colors_string():
-    return 'color:' + nm_color_td + '; ' \
+    return 'color:' + nm_color_td + ';\n' \
     + 'background:' + nm_color_bl + ';'
 
 
@@ -790,7 +790,7 @@ def nm_message_box_css():
     Generate and return CSS style of class QMessageBox,
     using global color declarations
     """
-    return ("QMessageBox,QLabel {" + nm_css_custom_colors + "}" + nm_css_qt_buttons() +
+    return ("QMessageBox,QLabel { background:yellow; }" + nm_css_qt_buttons() +
             "QPushButton {min-width:70px}")
 
 
@@ -822,10 +822,13 @@ def nm_dialog_css():
     using global color declarations
     """
     return """
-            QDialog, QDialog *
+            QLabel
             {
-                background: #fff;
-                color: #000;
+                color: """ + theme.color7 + """;
+            }
+            QDialog
+            {
+                background: """ + theme.color1 + """;
             }
             QFontComboBox::drop-down{border: 0px; border-left: 1px solid #555; width: 30px;}
             QFontComboBox::down-arrow{width:12px; height:8px;
@@ -843,7 +846,8 @@ def nm_dialog_css():
             }
             QTabWidget QTabBar
             {
-                color:#000
+                background: """ + theme.color1 + """;
+                color: """ + theme.color7 + """;
             }
             QTabWidget QTextEdit
             {
@@ -883,10 +887,12 @@ def nm_browser_search_box_css():
     return """
     QComboBox
     {
-        border:1px solid """ + nm_color_s + """;
+        border:2px solid """ + nm_color_al + """;
         border-radius:3px;
         padding:0px 4px;
-        """ + nm_css_custom_colors + """
+        background: #fff;
+        selection-background-color: """ + nm_color_al + """;
+        color: #000;
     }
 
     QComboBox:!editable
@@ -896,13 +902,12 @@ def nm_browser_search_box_css():
 
     QComboBox QAbstractItemView
     {
-        border:1px solid #111;
-        """ + nm_css_custom_colors + """
+        border:1px solid """ + nm_color_al + """;
+        selection-background-color: """ + nm_color_al + """;
     }
 
     QComboBox::drop-down, QComboBox::drop-down:editable
     {
-        """ + nm_css_custom_colors + """
         width:24px;
         border-left:1px solid #444;
         border-top-right-radius:3px;
@@ -923,9 +928,14 @@ def nm_css_browser():
     {
         background:""" + theme.color1 + """;
     }
-    #""" + nm_from_utf8("widget") + """, QTreeView
+    #""" + nm_from_utf8("widget") + """
     {
-        background: #eee
+        background: """ + theme.color1 + """;
+    }
+    QTreeView
+    {
+        background: """ + theme.color0 + """;
+        color: """ + theme.color7 + """;
     }
     QTreeView::item:selected:active, QTreeView::branch:selected:active
     {
@@ -947,7 +957,7 @@ nm_css_custom_colors = nm_make_css_custom_colors_string()
 # Thanks to http://devgrow.com/dark-button-navigation-using-css3/
 nm_css_button_idle = """
     background:""" + nm_color_bl + """;
-    color:""" + nm_color_td + """;
+    color:""" + nm_color_tl + """;
     margin-top:5px;
     position:relative;
     top:0;
@@ -989,14 +999,17 @@ button:active
 
 # TODO
 nm_css_completer = """
-    border-color:#444;
+    selection-background-color:""" + nm_color_al + """;
+    border:1px solid """ + nm_color_al + """;
 """
 
 nm_css_qt_mid_buttons = """
 QLineEdit
 {
     background: #fff;
+    selection-background-color: """ + nm_color_al + """;
     color: black;
+    border:1px solid """ + nm_color_al + """;
 }
 """
 
@@ -1033,7 +1046,7 @@ body, #outer
 /* Make the color above "Again" "Hard" "Easy" and so on buttons readable */
 .nobold
 {
-    color:""" + nm_color_bd + """;
+    color:""" + nm_color_tl + """;
 }
 """
 
@@ -1073,9 +1086,14 @@ img
 nm_css_body = """
 .card input
 {
-    background-color:black!important;
-    border-color:#444!important;
+    background-color:red!important;
+    border-color:blue!important;
     color:#eee!important
+}
+.card label
+{
+    margin-top: 5px;
+    color: """ + theme.color7 + """;
 }
 .typeGood
 {
@@ -1095,9 +1113,6 @@ nm_css_body = """
 #answer
 {
     height:0;
-    border:0;
-    border-bottom: 2px solid #333;
-    border-top: 2px solid black
 }
 img#star
 {
@@ -1154,7 +1169,7 @@ nm_css_other_bottoms = nm_css_buttons + """
 {
     background: """ + nm_color_bl + """;
     color:""" + nm_color_td + """!important;
-    border-top-color:#000;
+    border-top-color:#222;
     height:40px
 }
 """
