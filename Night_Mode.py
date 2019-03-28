@@ -773,16 +773,16 @@ def nm_card_color_css():
     using global color declarations
     """
     return (".card {    color:" + nm_color_td + "!important;" +
-            "background-color:#fff!important}")
+            "background-color:#blue!important}")
 
 
 def nm_body_color_css():
     """
-    Generate and return CSS style of class "card",
+    Generate and return CSS style of body
     using global color declarations
     """
     return (" body {    color:" + nm_color_td + "!important;" +
-            "background-color:#fff!important}")
+            "background-color:#blue!important}")
 
 
 def nm_message_box_css():
@@ -867,7 +867,6 @@ def nm_browser_table_css():
         QTableView
         {
             gridline-color:""" + nm_color_td + """;
-            """ + nm_css_custom_colors + """
             selection-background-color: """ + nm_color_al + """
         }
         """
@@ -945,7 +944,77 @@ def nm_css_browser():
     {
         background:""" + nm_color_ad + """
     }
-    """
+    """ + nm_css_scrollbar()
+
+
+def nm_css_scrollbar():
+    return """
+        QScrollBar:vertical {
+            width: 10px;
+            background: """ + theme.color7 + """;
+        }
+        QScrollBar::handle:vertical {
+            background: """ + theme.color4 + """;
+            min-height: 3px;
+            border-radius: 3px;
+            margin: 2px 2px 2px 2px;
+        }
+        QScrollBar::add-line:vertical
+        {
+            height: 0px;
+            subcontrol-position: bottom;
+            subcontrol-origin: margin;
+        }
+        QScrollBar::sub-line:vertical
+        {
+            height: 0px;
+            subcontrol-position: top;
+            subcontrol-origin: margin;
+        }
+        QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical 
+        {
+            width: 5px;
+            height: 5px;
+            background: """ + theme.color1 + """;
+        }
+        QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical
+        {
+            background: none;
+        }
+        QScrollBar:horizontal {
+            height: 10px;
+            background: """ + theme.color7 + """;
+        }
+        QScrollBar::handle:horizontal {
+            background: """ + theme.color4 + """;
+            min-width: 3px;
+            border-radius: 3px;
+            margin: 2px 2px 2px 2px;
+        }
+        QScrollBar::add-line:horizontal
+        {
+            width: 0px;
+            subcontrol-position: bottom;
+            subcontrol-origin: margin;
+        }
+        QScrollBar::sub-line:horizontal
+        {
+            width: 0px;
+            subcontrol-position: top;
+            subcontrol-origin: margin;
+        }
+        QScrollBar::up-arrow:horizontal, QScrollBar::down-arrow:horizontal 
+        {
+            width: 5px;
+            height: 5px;
+            background: """ + theme.color1 + """;
+        }
+        QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
+        {
+            background: none;
+        }
+        """
+
 
 #
 # GLOBAL CSS STYLES SECTION
@@ -1135,12 +1204,11 @@ a
 }
 .current
 {
-    background-color:#eee;
-    color:""" + nm_color_tl + """;
+    background-color:#e7e7e7;
 }
 a.deck, .collapse
 {
-    color:""" + nm_color_td + """;
+    color: #000;
 }
 tr.deck td
 {
