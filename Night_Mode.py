@@ -348,8 +348,7 @@ def nm_editor_web_view_stdHTML_around(*args, **kwargs):
     if nm_state_on and nm_enable_in_dialogs:
         custom_css += nm_css_buttons + '.topbut{filter:invert(1); -webkit-filter:invert(1)}'
         custom_css += 'a{color:' + nm_color_tl + '}  .fname, .field{  }'
-        #custom_css += nm_css_scrollbar()
-        #custom_css += 'html,body{background:#fff!important}'
+        custom_css += 'html,body{background:#fff!important}'
 
     if nm_invert_image:
         custom_css += ".field " + nm_css_iimage
@@ -388,12 +387,7 @@ def nm_editor_web_view_set_html_after(self, *args, **kwargs):
             background:""" + theme.color1 + """; 
             color:""" + theme.color7 + """;
         }
-        .fname::selection
-        {
-            background: """ + nm_color_al + """;
-            color: """ + nm_color_tl + """;
-        }
-        .field::selection
+        *::selection
         {
             background: """ + nm_color_al + """;
             color: """ + nm_color_tl + """;
@@ -804,7 +798,7 @@ def nm_body_color_css():
     using global color declarations
     """
     return (" body {    color:" + nm_color_td + "!important;" +
-            "background-color:#blue!important}")
+            "background-color:!important}")
 
 
 def nm_message_box_css():
