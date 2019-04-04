@@ -348,6 +348,7 @@ def nm_editor_web_view_stdHTML_around(*args, **kwargs):
     if nm_state_on and nm_enable_in_dialogs:
         custom_css += nm_css_buttons + '.topbut{filter:invert(1); -webkit-filter:invert(1)}'
         custom_css += 'a{color:' + nm_color_tl + '}  .fname, .field{  }'
+        #custom_css += nm_css_scrollbar()
         #custom_css += 'html,body{background:#fff!important}'
 
     if nm_invert_image:
@@ -380,7 +381,25 @@ def nm_editor_web_view_set_html_after(self, *args, **kwargs):
     css = ''
 
     if nm_state_on and nm_enable_in_dialogs:
-        css += 'a{color:' + nm_color_tl + '}  .fname{ background:' + theme.color1 + '; color:' + theme.color7 + ' }'
+        css += 'a{color:' + nm_color_tl + '}'
+        css += """
+        .fname
+        { 
+            background:""" + theme.color1 + """; 
+            color:""" + theme.color7 + """;
+        }
+        .fname::selection
+        {
+            background: """ + nm_color_al + """;
+            color: """ + nm_color_tl + """;
+        }
+        .field::selection
+        {
+            background: """ + nm_color_al + """;
+            color: """ + nm_color_tl + """;
+        }
+        """
+        css += nm_css_scrollbar()
 
     if nm_invert_image:
         css += '.field ' + nm_css_iimage
@@ -561,7 +580,7 @@ def nm_append_to_styles(bottom='', body='', top='', decks='',
     mw.reviewer._bottomCSS = nm_default_css_bottom + bottom
 
     if not appVersion.startswith('2.1'):
-        mw.reviewer._css = nm_default_css_body + body
+        mw.reviewer._css = nm_default_css_body + body + nm_css_scrollbar()
     else:
         mw.reviewer._revHtml = nm_default_reviewer_html + '<style>' + body + '</style>'
 
@@ -766,6 +785,9 @@ def nm_refresh_css_custom_colors_string():
     global nm_css_custom_colors
     nm_css_custom_colors = nm_make_css_custom_colors_string()
 
+#
+# QT CSS STYLES SECTION
+#
 
 def nm_card_color_css():
     """
@@ -830,16 +852,24 @@ def nm_dialog_css():
             {
                 background: """ + theme.color1 + """;
             }
-            QFontComboBox::drop-down{border: 0px; border-left: 1px solid #555; width: 30px;}
+            QFontComboBox::drop-down
+            {
+                border: 0px; 
+                border-left: 1px solid """ + nm_color_al + """; 
+                width: 30px;
+            }
             QFontComboBox::down-arrow{width:12px; height:8px;
                 top:1px;
                 image:url(""" + NM_DOWN_ARROW_ICON_PATH + """)
             }
-            QFontComboBox, QSpinBox{border: 1px solid #555}
+            QFontComboBox, QSpinBox
+            {
+                border: 1px solid """ + nm_color_al + """;
+            }
 
             QTabWidget QWidget
             {
-                border-color:#555
+                border-color:""" + nm_color_al + """;
             }
             QTabWidget QLabel {
                 position:relative
@@ -851,7 +881,7 @@ def nm_dialog_css():
             }
             QTabWidget QTextEdit
             {
-                border-color:#555
+                border-color:""" + nm_color_al + """;
             }
             QTabWidget QGroupBox::title
             {
@@ -876,8 +906,11 @@ def nm_browser_table_header_css():
     return """
         QHeaderView, QHeaderView::section
         {
-            """ + nm_css_custom_colors + """
-            border:1px solid """ + nm_color_s + """
+            background: """ + theme.color1 + """;
+            color: #fff;
+            border: 0px;
+            border-top:1px solid """ + nm_color_al + """;
+            border-bottom:1px solid """ + nm_color_al + """;
         }
         """
 
@@ -908,7 +941,7 @@ def nm_browser_search_box_css():
     QComboBox::drop-down, QComboBox::drop-down:editable
     {
         width:24px;
-        border-left:1px solid #444;
+        border-left:1px solid """ + nm_color_al + """;
         border-top-right-radius:3px;
         border-bottom-right-radius:3px;
     }
@@ -942,7 +975,7 @@ def nm_css_browser():
     }
     QTreeView::item:selected:!active, QTreeView::branch:selected:!active
     {
-        background:""" + nm_color_ad + """
+        background:""" + nm_color_al + """
     }
     """ + nm_css_scrollbar()
 
@@ -1013,6 +1046,25 @@ def nm_css_scrollbar():
         {
             background: none;
         }
+        ::-webkit-scrollbar
+        {
+            height: 10px;
+            width: 10px;
+        }
+        /* background */
+        ::-webkit-scrollbar-track
+        {
+            background:""" + theme.color7 + """;
+        }
+        /* handle */
+        ::-webkit-scrollbar-thumb
+        {
+            min-height: 3px;
+            min-width: 3px;
+            border-radius: 3px;
+            border: 2px solid """ + theme.color7 + """;
+            background:""" + theme.color4 + """;
+        }
         """
 
 
@@ -1066,7 +1118,6 @@ button:active
 }
 """
 
-# TODO
 nm_css_completer = """
     selection-background-color:""" + nm_color_al + """;
     border:1px solid """ + nm_color_al + """;
@@ -1093,7 +1144,7 @@ font[color="#000099"],span[style="color:#00F"]
 }
 font[color="#C35617"],span[style="color:#c00"]
 {
-    color:#D46728!important
+    color:#E79292!important
 }
 font[color="#00a"]
 {
@@ -1106,7 +1157,7 @@ body, #outer
 {
     background: """ + nm_color_bl + """;
     color: """ + nm_color_tl + """;
-    border-top-color:#222
+    border-top-color:""" + nm_color_al + """;
 }
 .stattxt
 {
@@ -1127,7 +1178,7 @@ html, #header
 body, #header
 {
     """ + nm_css_custom_colors + """;
-    border-bottom-color:#222
+    border-bottom-color:""" + nm_color_al + """;
 }
 .hitem
 {
@@ -1237,17 +1288,16 @@ nm_css_other_bottoms = nm_css_buttons + """
 {
     background: """ + nm_color_bl + """;
     color:""" + nm_color_td + """!important;
-    border-top-color:#222;
+    border-top-color:""" + nm_color_al + """;
     height:40px
 }
 """
 
 
 def nm_css_overview():
-    return nm_css_buttons + nm_css_color_replacer + """
+    return nm_css_buttons + """
     .descfont
     {
-        """ + nm_css_custom_colors + """
     }
     """
 
@@ -1268,7 +1318,7 @@ QMenuBar::item:selected
 }
 QMenu
 {
-    border:1px solid #111
+    border:1px solid """ + nm_color_al + """;
 }
 QMenu::item::selected
 {
