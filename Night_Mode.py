@@ -410,6 +410,8 @@ def nm_editor_web_view_set_html_after(self, *args, **kwargs):
 def nm_edit_current_init_after(self, mw):
 
     if nm_state_on and nm_enable_in_dialogs:
+        x = self.styleSheet()
+        self.setStyleSheet(x + nm_css_scrollbar())
         self.form.buttonBox.setStyleSheet(nm_css_qt_buttons())
 
 
@@ -446,6 +448,7 @@ def nm_browser_card_info_after(self, _old):
                 border-color:#fff!important
             }
             """ + nm_css_color_replacer + """
+            """ + nm_css_scrollbar() + """
             </style>
             """
     return rep, cs
